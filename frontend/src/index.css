@@ -1,1 +1,155 @@
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   DatAIntel — görsel dil
+   Anlatı: veri boru hattı boyunca "soğuk → sıcak". Ham ölçüm camgöbeği
+   (--color-cold), üretilen karar amber (--color-warm). Renk süs değil; sayfada
+   aşağı indikçe ısınması, verinin karara dönüşmesini temsil eder.
+   Zemin saf siyah değil karbon; metin saf beyaz değil kemik beyazı — koyu
+   temada saf siyah/beyaz kontrastı gözü yorar ve ucuz görünür.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Yüzeyler */
+  --color-carbon: #08090b;
+  --color-carbon-raised: #0e1014;
+  --color-carbon-sunken: #050608;
+
+  /* Metin */
+  --color-bone: #f0ece4;
+  --color-bone-dim: #a8a49c;
+  --color-bone-faint: #6e6b66;
+
+  /* Anlatısal eksen */
+  --color-cold: #45c8f1;
+  --color-cold-deep: #1b6f8f;
+  --color-warm: #ffa31a;
+  --color-warm-deep: #b06a00;
+
+  /* Durum */
+  --color-alert: #ff5c47;
+
+  /* Tipografi — Inter/Space Grotesk bilinçli olarak yok.
+     Üçü de Latin Extended içerir, Türkçe ı/İ/ğ/ş/ç/ö/ü tam desteklenir. */
+  --font-display: "Bricolage Grotesque", "Segoe UI", sans-serif;
+  --font-sans: "Instrument Sans", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Yumuşak (giriş) ve esnek (vurgu) easing */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    /* Kenar çizgisi tabanı — kemik beyazının düşük alfası, mavi tint yok */
+    --edge: rgb(240 236 228 / 0.09);
+    --edge-strong: rgb(240 236 228 / 0.18);
+  }
+
+  html {
+    /* Lenis kendi yumuşatmasını yapar; native smooth ile çakışmamalı */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-carbon);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* DİKKAT: burada overflow-x tanımlamayın. overflow-x'i `visible` dışında
+       bir değere çekmek, spesifikasyon gereği overflow-y'yi de `auto`/`hidden`
+       yapar; body bir kaydırma kapsayıcısına dönüşür ve içindeki BÜTÜN
+       `position: sticky` öğeleri çalışmayı bırakır (boru hattı ve modül
+       galerisi buna dayanıyor). Yatay taşma, taşan bileşenin kendi
+       kapsayıcısında (`overflow-hidden`) kesiliyor. */
+  }
+
+  /* Başlıklarda optik sıkılaştırma — büyük puntoda varsayılan tracking
+     dağınık durur. */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Odak halkası her yerde görünür kalmalı; hiçbir yerde outline:none yok */
+  :focus-visible {
+    outline: 2px solid var(--color-cold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-warm);
+    color: var(--color-carbon);
+  }
+
+  /* Sayısal sütunlar ve sayaçlar kayma yapmasın */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* Bölüm etiketi: küçük mono, harf aralığı açık — ölçüm cihazı hissi */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-bone-faint);
+  }
+
+  /* Zemindeki ince ızgara — WebGL'siz de sayfaya doku verir.
+     Çok düşük kontrast: fark edilir ama okumayı bozmaz. */
+  .grid-veil {
+    background-image:
+      linear-gradient(to right, var(--edge) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--edge) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 78%);
+  }
+
+  /* Film grenini taklit eden dokunuşsuz doku katmanı */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Hareket azaltma: scrub/pin animasyonları JS tarafında da kapatılır
+   (bkz. usePrefersReducedMotion). Burada CSS tarafını sabitliyoruz —
+   içerik animasyonsuz da tam görünür ve okunur kalmalı.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .grid-veil {
+    mask-image: none;
+    opacity: 0.4;
+  }
+}
