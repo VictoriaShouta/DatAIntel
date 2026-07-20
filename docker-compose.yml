@@ -6,10 +6,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
       POSTGRES_DB: ${POSTGRES_DB:-datAIntel}
     ports:
-      - "5432:5432"
+      - "5433:5432"  # host tarafında 5433: bu makinede native PostgreSQL 17 5432'yi kullanıyor
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init_mlflow_db.sql:/docker-entrypoint-initdb.d/init_mlflow_db.sql:ro
+      - ./docker/postgres-initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-datAIntel}"]
       interval: 5s
@@ -48,7 +48,7 @@ services:
     environment:
       PIP_ROOT_USER_ACTION: ignore
     ports:
-      - "5000:5000"
+      - "5001:5000"  # host tarafında 5001: bu makinede macOS ControlCenter/AirPlay 5000'i kullanıyor
     volumes:
       - mlflow_data:/mlflow/artifacts
     depends_on:
@@ -65,7 +65,7 @@ services:
   prometheus:
     image: prom/prometheus:v3.0.1
     volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus:/etc/prometheus:ro
       - prometheus_data:/prometheus
     ports:
       - "9090:9090"

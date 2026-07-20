@@ -191,22 +191,34 @@ sequenceDiagram
 
 ## 5. Servis Portları (Yerel Geliştirme)
 
-| Servis | Port | Not |
-|---|---|---|
-| frontend | 5173 | Vite dev server |
-| backend | 8000 | FastAPI, `/docs` = OpenAPI (M09) |
-| postgres | 5432 | |
-| redis | 6379 | |
-| redpanda | 9092 (Kafka API), 8081 (schema registry, kullanılmıyorsa kapatılabilir) | |
-| mlflow | 5000 | |
-| prometheus | 9090 | |
-| grafana | 3000 | |
-| mock_erp | 8001 | |
+| Servis | Host portu | Container içi port | Not |
+|---|---|---|---|
+| frontend | 5173 | 5173 | Vite dev server |
+| backend | 8000 | 8000 | FastAPI, `/docs` = OpenAPI (M09) |
+| postgres | **5433** | 5432 | Host'ta 5433: bu makinede native PostgreSQL 17 zaten 5432'yi kullanıyor. Container-içi iletişim (`postgres:5432`) etkilenmez. |
+| redis | 6379 | 6379 | |
+| redpanda | 9092 | 9092 | Kafka API |
+| mlflow | **5001** | 5000 | Host'ta 5001: bu makinede macOS ControlCenter/AirPlay Receiver 5000'i kullanıyor. Container-içi iletişim (`mlflow:5000`) etkilenmez. |
+| prometheus | 9090 | 9090 | |
+| grafana | 3000 | 3000 | |
+| mock_erp | 8001 | 8001 | |
 
 ## 6. Açık Notlar
 
-- Bu makinede Docker kurulu değil; `docker compose up` doğrulaması henüz
-  yapılamadı. Bkz. `PLAN.md` § Bilinen Sorunlar.
+- Docker bu makineye kuruldu; `docker compose up -d` ile **12 servisin tamamı**
+  gerçekten ayağa kaldırılıp doğrulandı (Gün 2 sonu):
+  - Host'ta iki port çakışması bulundu ve çözüldü (postgres → 5433, native
+    PostgreSQL 17 ile çakışıyordu; mlflow → 5001, macOS ControlCenter/AirPlay
+    ile çakışıyordu).
+  - `postgres` ve `prometheus` container'ları ilk denemede tek-dosya bind
+    mount (`./dosya.yml:/hedef/dosya.yml`) yüzünden Docker Desktop VM
+    seviyesinde kilitlendi (`docker rm -f` bile yanıt vermedi). Kalıcı çözüm:
+    her ikisi de artık dizin bazlı mount kullanıyor
+    (`./docker/postgres-initdb:/docker-entrypoint-initdb.d`,
+    `./monitoring/prometheus:/etc/prometheus`).
+  - Sonuç: `backend` `/health` ve `/docs`, `mock_erp` `/health`, `mlflow`,
+    `prometheus`, `grafana`, `frontend` (5173) hepsi 200 döndü; `worker`/`beat`
+    Redis'e bağlanıp hazır duruma geçti; `postgres`/`redis` healthy.
 - Prophet kurulum sorunlarına karşı SARIMA'ya düşme kuralı (FR-04-2, SOTA §4.3)
   bu diyagramlarda ayrıca gösterilmedi; `M04` servis katmanında try/fallback
   olarak uygulanacak.

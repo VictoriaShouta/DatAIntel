@@ -25,6 +25,9 @@ frontend/.vite/
 # Sentetik veri (scripts/generate_data.py ile yeniden üretilebilir)
 data/synthetic/
 
+# Celery beat çalışma zamanı artefaktı
+backend/celerybeat-schedule*
+
 # Docker / veri
 postgres_data/
 redis_data/

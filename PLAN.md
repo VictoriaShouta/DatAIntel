@@ -38,13 +38,13 @@ Kod yok. Bu gün, İş Paketi 1'in karşılığı ve staj raporunun omurgası.
 ### Gün 2 — Mimari, Altyapı ve Sentetik Veri
 - [x] `docs/ARCHITECTURE.md`: katman şeması, ER diyagramı, modül bağımlılık grafiği, veri akışı, servis portları
 - [x] Repo iskeleti (`git init`) + `requirements.txt` + `.env.example` + `.gitignore` + `README.md`
-- [x] `docker-compose.yml`: postgres, redis, redpanda, mlflow, prometheus, grafana, backend, worker, beat, frontend, mock_erp, stream_producer (YAML doğrulandı; `docker compose up` bu makinede test edilemedi — bkz. Bilinen Sorunlar)
+- [x] `docker-compose.yml`: postgres, redis, redpanda, mlflow, prometheus, grafana, backend, worker, beat, frontend, mock_erp, stream_producer — **12 servis de gerçekten ayakta ve doğrulandı** (bkz. aşağıdaki madde)
 - [x] FastAPI iskeleti + `/health` + `/metrics` + `core/config.py` + `core/db.py` + `core/security.py` + `core/logging.py` + Alembic init — geçici venv'de gerçek import + TestClient ile doğrulandı
 - [x] Frontend iskeleti (Vite 8 + React 19 + Tailwind v4 + React Router + TanStack Query + Recharts v3); M01–M15 için boş sayfa kabukları + Layout/nav. **Tasarımsız bırakıldı** — hero/animasyon Claude Design çıktısı geldikten sonra eklenecek (bkz. Not aşağıda). `npm run build` ve tarayıcıda routing doğrulandı.
 - [x] **`scripts/generate_data.py`** — 2 yıllık (730 gün) satış/stok/finans/müşteri verisi; trend + haftalık/yıllık mevsimsellik + gürültü; ~%5 kasıtlı kirli kayıt (eksik değer, aykırı değer, tip hatası, duplikasyon) — çalıştırıldı ve dört kirli kayıt tipi de doğrulandı (`data/synthetic/`, gitignore'da — script ile yeniden üretilebilir)
-- [ ] `docker compose up` ile her şey ayağa kalkıyor ✔ — **bloklandı, bu makinede Docker kurulu değil** (bkz. Bilinen Sorunlar)
+- [x] `docker compose up` ile her şey ayağa kalkıyor ✔ — Docker kurulduktan sonra doğrulandı: `backend` `/health`+`/docs`, `mock_erp` `/health`, `mlflow`, `prometheus`, `grafana`, `frontend` 200 döndü; `worker`/`beat` Redis'e bağlandı; `postgres`/`redis` healthy. İki port çakışması (postgres/mlflow) ve iki VM-seviyesi bind-mount kilitlenmesi (postgres/prometheus) çözüldü — detay `docs/ARCHITECTURE.md` § Açık Notlar.
 
-**Çıktı:** Repo iskeleti, docker-compose.yml, çalıştığı doğrulanmış backend/frontend kabukları, sentetik veri üreteci.
+**Çıktı:** Repo iskeleti, docker-compose.yml (12 servis çalışır durumda doğrulandı), backend/frontend kabukları, sentetik veri üreteci.
 
 > **Not (frontend iş bölümü):** Kullanıcı frontend'e başlamadan önce ana sayfa/hero'yu
 > Claude Design ile tasarlayacak; ardından yüklü frontend skilleriyle animasyonlu
@@ -183,8 +183,8 @@ Kod yok. Bu gün, İş Paketi 1'in karşılığı ve staj raporunun omurgası.
 
 - **[Gün 1 / açık]** SOTA kaynakçasındaki künyeler ve doküman URL'leri çevrimdışı yazıldı; rapora girmeden önce doğrulanmalı (özellikle literatür künyeleri ve ürün doküman linkleri).
 - **[Gün 1 / açık]** SOTA'daki ürün bilgileri (Power BI/Fabric vb.) Oca 2026 bilgisine dayanıyor; teslim öncesi hızlı gözden geçirme gerekebilir.
-- **[Gün 2 / açık]** Geliştirme makinesinde **Docker kurulu değil** (Node 24 ve Python 3.13 var). `docker-compose.yml` YAML olarak doğrulandı, backend gerçek bir Python venv'de çalıştırıldı, frontend gerçek `npm install`+build+tarayıcı ile doğrulandı — ama **hiçbir servis gerçek container içinde denenmedi**. Docker Desktop kurulunca `docker compose up --build` ile uçtan uca doğrulama yapılmalı.
-- **[Gün 2 / açık]** Bu makinede git `user.name`/`user.email` global olarak ayarlı değil; ilk commit için kullanıcıdan bu bilgi istenecek (yalnızca bu repo için mi, global mi ayarlanacağı da sorulacak).
+- **[Gün 2 / kapandı]** Docker Desktop kuruldu, `docker compose up -d` ile 12 servisin tamamı doğrulandı. Yol boyunca iki port çakışması (host'ta native Postgres 17 → 5432, macOS ControlCenter/AirPlay → 5000) ve iki tek-dosya bind-mount kaynaklı VM kilitlenmesi (postgres, prometheus — `docker rm -f` bile yanıt vermiyordu, Docker Desktop'ta 5-10 dk sonra kendiliğinden çözüldü) giderildi; `docker-compose.yml` artık dizin bazlı mount kullanıyor. Detay: `docs/ARCHITECTURE.md` § Açık Notlar.
+- **[Gün 2 / kapandı]** git `user.name`/`user.email` kullanıcıdan alınıp bu repo için yerel olarak (`git config --local`) ayarlandı.
 
 ---
 
