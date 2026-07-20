@@ -1,0 +1,45 @@
+# Kaynak Word dokümanları (repoya girmez — CLAUDE.md/PLAN.md kararı)
+*.docx
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Ortam / sırlar
+.env
+.env.*
+!.env.example
+
+# Sentetik veri (scripts/generate_data.py ile yeniden üretilebilir)
+data/synthetic/
+
+# Docker / veri
+postgres_data/
+redis_data/
+redpanda_data/
+mlflow_data/
+grafana_data/
+prometheus_data/
+backups/
+*.db
+*.sqlite3
+
+# IDE / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Claude Code / harness
+.claude/
