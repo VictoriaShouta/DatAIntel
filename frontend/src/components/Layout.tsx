@@ -61,10 +61,10 @@ function ModuleIndex({ open, onClose }: { open: boolean; onClose: () => void }) 
   return (
     <div
       ref={panelRef}
-      id="modul-dizini"
+      id="site-dizini"
       role="dialog"
       aria-modal="true"
-      aria-label="Modül dizini"
+      aria-label="Site dizini"
       tabIndex={-1}
       inert={!open}
       className={`fixed inset-0 z-40 overflow-y-auto bg-carbon-sunken/[0.97] backdrop-blur-xl transition-all duration-500 ${
@@ -84,7 +84,7 @@ function ModuleIndex({ open, onClose }: { open: boolean; onClose: () => void }) 
                 // yukarıdan aşağı dolar. Kapalıyken gecikme yok — anında gider.
                 const delay = open ? revealIndex++ * 28 : 0
                 return (
-                  <li key={module.code}>
+                  <li key={module.to}>
                     <Link
                       to={module.to}
                       onClick={onClose}
@@ -97,9 +97,6 @@ function ModuleIndex({ open, onClose }: { open: boolean; onClose: () => void }) 
                         transitionDelay: `${delay}ms`,
                       }}
                     >
-                      <span className="font-mono text-xs text-bone-faint transition-colors group-hover:text-warm">
-                        {module.code}
-                      </span>
                       <span className="flex-1">
                         <span className="block font-display text-lg font-semibold tracking-tight text-bone transition-transform duration-300 group-hover:translate-x-1">
                           {module.name}
@@ -199,10 +196,10 @@ export function Layout() {
                 type="button"
                 onClick={() => setMenuOpen((value) => !value)}
                 aria-expanded={menuOpen}
-                aria-controls="modul-dizini"
+                aria-controls="site-dizini"
                 className="flex items-center gap-2.5 rounded-lg border border-[var(--edge-strong)] px-3.5 py-2 text-sm font-medium text-bone transition-colors duration-200 hover:border-warm/50 hover:text-warm"
               >
-                <span className="hidden sm:inline">{menuOpen ? 'Kapat' : 'Modüller'}</span>
+                <span className="hidden sm:inline">{menuOpen ? 'Kapat' : 'Tümü'}</span>
                 <span className="relative flex h-3 w-4 flex-col justify-between" aria-hidden="true">
                   <span
                     className="block h-px w-full bg-current transition-transform duration-300"
@@ -255,7 +252,7 @@ export function Layout() {
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-bone-faint">
                   Akan veriyi toplayan, çözümleyen ve karara dönüştüren analitik platformu.
-                  On beş modül tek bir boru hattında çalışır.
+                  Uçtan uca tek bir boru hattında çalışır.
                 </p>
               </div>
 
@@ -268,7 +265,7 @@ export function Layout() {
                     <h2 className="eyebrow mb-3">{PHASE_LABELS[phase]}</h2>
                     <ul className="space-y-2">
                       {MODULES.filter((m) => m.phase === phase).map((module) => (
-                        <li key={module.code}>
+                        <li key={module.to}>
                           <Link
                             to={module.to}
                             className="text-sm text-bone-dim transition-colors duration-200 hover:text-warm"

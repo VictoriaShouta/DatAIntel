@@ -6,6 +6,20 @@
 **Durum:** Gün 2 tamamlandı — Gün 3'e hazır (M10 + M01 + M02 henüz başlamadı)
 **Son güncelleme:** 21.07.2026 — ayrıca bkz. `CLAUDE.md` → "Gün 3'e Devir" (ana sayfa tasarımı, WebGL koruması, kök npm scriptleri, GitHub push — bunlar Gün 3 modül planının dışında, üstüne eklendi)
 
+> **Plan dışı not (21.07.2026, Gün 3 başlamadan önce):** Ana sayfaya alche.studio
+> referanslı, GSAP ScrollTrigger tabanlı çapraz bir hero-çıkış efekti eklendi —
+> hero, ekstra bir 80vh'lik "koşu pisti" boyunca sticky kalıp sağ-üst yönde
+> `xPercent`/`yPercent`/`rotate`/`scale` ile ivmelenerek sahneden ayrılıyor,
+> arkasında zaten sabit duran DataCloud (3D nokta bulutu, `z-0`, tüm sayfa
+> boyunca fixed) ve boru hattı bölümü pürüzsüzce ortaya çıkıyor. Mevcut boru
+> hattı bölümündeki desenle aynı yaklaşım kullanıldı (GSAP `pin:true` değil,
+> sticky + scrub — Lenis ile bilinen uyumsuzluktan kaçınmak için). Ayrıca site
+> genelinde kullanıcıya görünen "modül" kelimesi ve `M01` gibi kod rozetleri
+> kaldırıldı (geliştiricinin tercihiyle: şemsiye kelime yok, sadece isimle
+> anlatım — `frontend/src/lib/modules.ts`, `HomePage.tsx`, `Layout.tsx`). Bu iş
+> Gün 3'ün M10/M01/M02 hedefinin bir parçası değil, üstüne eklendi; modül
+> kutularını etkilemiyor.
+
 ---
 
 ## HAFTA 1

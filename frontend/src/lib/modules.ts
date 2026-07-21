@@ -137,9 +137,9 @@ export const MODULES: ModuleEntry[] = [
   },
 ]
 
-/** Header'daki ana navigasyon — 15 modülün tamamı değil, dört durak. */
+/** Header'daki ana navigasyon — 15 durağın tamamı değil, dört nokta. */
 export const PRIMARY_NAV = [
   { label: 'Platform', href: '/#platform' },
-  { label: 'Modüller', href: '/#moduller' },
+  { label: 'Hat', href: '/#hat' },
   { label: 'Mimari', href: '/#mimari' },
 ] as const

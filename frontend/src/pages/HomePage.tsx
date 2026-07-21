@@ -67,6 +67,8 @@ export function HomePage() {
 
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasWrapRef = useRef<HTMLDivElement>(null)
+  const heroWrapRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
   const pipelineRef = useRef<HTMLDivElement>(null)
   const galleryRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -95,6 +97,31 @@ export function HomePage() {
         stagger: 0.1,
         delay: 0.45,
       })
+
+      // --- Çıkış: hero çapraz yukarı ivmelenerek sahneden ayrılır --------
+      // `heroWrapRef` hero'dan daha uzun (bkz. JSX) — aradaki fazla scroll
+      // mesafesi bu tween'in "koşu pisti"dır. Hero kendi kutusunda sticky
+      // kaldığı için transform saf görsel bir hareket; layout'u etkilemez,
+      // bu yüzden GSAP `pin` yerine burada da sticky + scrub deseni
+      // kullanılıyor (bkz. boru hattı bölümündeki not). DataCloud (z-0,
+      // fixed, tüm sayfa boyunca) hero'nun (z-20) arkasında zaten hazır
+      // duruyor — hero çekildikçe ayrıca bir katman açmaya gerek yok.
+      if (heroRef.current && heroWrapRef.current) {
+        gsap.to(heroRef.current, {
+          xPercent: 24,
+          yPercent: -120,
+          rotate: -6,
+          scale: 0.92,
+          ease: 'power2.inOut',
+          force3D: true,
+          scrollTrigger: {
+            trigger: heroWrapRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 1.1,
+          },
+        })
+      }
 
       // --- Boru hattı: scroll konumu 3D morph'u sürer -------------------
       // DİKKAT: burada `scrub` KULLANILMAZ. Animasyonu olmayan bir
@@ -190,8 +217,16 @@ export function HomePage() {
       )}
 
       {/* ================= HERO ================= */}
-      <section className="grain relative z-10 flex min-h-dvh flex-col justify-end overflow-hidden px-6 pb-14 sm:px-10 lg:px-16">
-        <div className="grid-veil pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
+      {/* Sarmalayıcı hero'dan daha uzun (180vh): fazladan 80vh, hero'nun
+          çapraz çıkış animasyonu için "koşu pisti". Hareket azaltmada
+          sarmalayıcı hero ile aynı yüksekliğe döner — sticky de, tween de
+          hiç kurulmaz, boş scroll alanı kalmaz. */}
+      <div ref={heroWrapRef} className={`relative z-20 ${reduced ? '' : 'h-[180vh]'}`}>
+        <section
+          ref={heroRef}
+          className={`grain relative flex min-h-dvh flex-col justify-end overflow-hidden px-6 pb-14 sm:px-10 lg:px-16 ${reduced ? '' : 'sticky top-0'}`}
+        >
+          <div className="grid-veil pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
 
         <div className="mx-auto w-full max-w-[1400px]">
           <p data-hero-fade className="eyebrow mb-8">
@@ -214,8 +249,8 @@ export function HomePage() {
 
           <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <p data-hero-fade className="max-w-md text-lg leading-relaxed text-bone-dim">
-              Toplama, çözümleme, tahmin ve karar. On beş modül birbirine bağlı tek bir
-              boru hattı olarak çalışır — arada elle taşınan hiçbir dosya yoktur.
+              Toplama, çözümleme, tahmin ve karar. Uçtan uca tek bir boru hattı olarak
+              çalışır — arada elle taşınan hiçbir dosya yoktur.
             </p>
 
             <div data-hero-fade className="flex flex-wrap items-center gap-3">
@@ -242,7 +277,8 @@ export function HomePage() {
             Aşağı kaydırın
           </div>
         </div>
-      </section>
+        </section>
+      </div>
 
       {/* ================= BORU HATTI (sticky sahne) =================
           Yüksek bir kapsayıcı içinde yapışkan bir görünüm: scroll ilerledikçe
@@ -358,7 +394,7 @@ export function HomePage() {
           kalacağı için 15 kartın 12'sine ulaşılamazdı. O durumda bölüm normal
           yüksekliğe döner ve kartlar sarmalı bir ızgara olarak dizilir. */}
       <section
-        id="moduller"
+        id="hat"
         ref={galleryRef}
         className="relative z-10 bg-carbon"
         style={reduced ? undefined : { height: `${MODULES.length * 42}vh` }}
@@ -372,9 +408,9 @@ export function HomePage() {
         >
           <div className="mx-auto mb-10 flex w-full max-w-[1400px] items-end justify-between px-6 sm:px-10 lg:px-16">
             <h2 className="font-display text-[clamp(1.9rem,4vw,3rem)] font-extrabold">
-              On beş modül
+              On beş durak, tek hat
             </h2>
-            <span className="font-mono text-xs text-bone-faint tabular">M01 — M15</span>
+            <span className="font-mono text-xs text-bone-faint tabular">Uçtan uca</span>
           </div>
 
           {/* Dikey scroll bu şeridi yatayda sürer */}
@@ -388,7 +424,7 @@ export function HomePage() {
           >
             {MODULES.map((module) => (
               <Link
-                key={module.code}
+                key={module.to}
                 to={module.to}
                 className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--edge)] bg-carbon-raised p-6 transition-colors duration-300 hover:border-warm/45 ${
                   reduced
@@ -404,9 +440,6 @@ export function HomePage() {
                 />
 
                 <div className="relative flex items-start justify-between">
-                  <span className="rounded-md border border-[var(--edge-strong)] px-2 py-1 font-mono text-[11px] text-bone-dim transition-colors duration-300 group-hover:border-warm/50 group-hover:text-warm">
-                    {module.code}
-                  </span>
                   <span className="eyebrow">{PHASE_LABELS[module.phase]}</span>
                 </div>
 
@@ -416,7 +449,7 @@ export function HomePage() {
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-bone-faint">{module.summary}</p>
                   <span className="mt-5 flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] text-bone-faint uppercase transition-colors duration-300 group-hover:text-warm">
-                    Modüle git
+                    İncele
                     <span
                       className="transition-transform duration-300 group-hover:translate-x-1"
                       aria-hidden="true"
@@ -437,12 +470,12 @@ export function HomePage() {
           <div data-reveal className="max-w-2xl">
             <p className="eyebrow mb-6">Mimari</p>
             <h2 className="font-display text-[clamp(1.9rem,4.4vw,3.4rem)] font-extrabold">
-              Modüler monolit, gerçek altyapı
+              Tek uygulama, gerçek altyapı
             </h2>
             <p className="mt-6 text-[17px] leading-relaxed text-bone-dim">
-              Modüller tek bir uygulama içinde ama katı bir bağımlılık kuralıyla yaşar:
-              bir modül diğerinin servis katmanını çağırabilir, yönlendiricisini asla.
-              Bütün yığın tek komutla ayağa kalkar.
+              Her şey tek bir uygulamanın içinde çalışır — ayrı servisler, ayrı süreçler
+              yok. Aradaki sınırlar kod düzeyinde katı bir bağımlılık kuralıyla korunur
+              ve kullanıcıya hiç sızmaz. Bütün yığın tek komutla ayağa kalkar.
             </p>
           </div>
 
