@@ -148,3 +148,26 @@ Bu iki doküman `docs/` altına geliştirici tarafından yerleştirilecektir.
 
 - **Sohbet oturumu (bu ortam):** kod öncesi dokümanlar, planlama, gereksinim yazımı. Dosya sistemine kalıcı yazma ve komut çalıştırma yok.
 - **Claude Code:** repo, Docker, migration, commit, test döngüsü — CLAUDE.md'deki Çalışma Protokolü'nün fiilen işlediği yer.
+
+---
+
+## Gün 3'e Devir
+
+**Son güncelleme:** 21.07.2026 — Gün 2 tamamlandı ve doğrulandı; ayrıca kapsam dışı bir ana sayfa/görsel tasarım turu yapıldı. Gün 3 (M10 + M01 + M02) henüz başlamadı.
+
+### Gün 2'den bu yana ne değişti (Gün 3'ü bloklamıyor ama bilinmesi gerekir)
+
+- **Ana sayfa artık tasarımlı — plan dışı, ayrı bir talep üzerine.** Kullanıcı önce Claude Design ile bir header/hero handoff'u denedi, beğenmedi ("AI slop" gibi durmasın istedi), sonrasında tasarım kararlarını doğrudan Claude Code'a bıraktı. `frontend/src/pages/HomePage.tsx` ve `frontend/src/components/Layout.tsx` artık landonorris.com referanslı, scroll tabanlı, GSAP + Lenis + React Three Fiber ile kurulu bitmiş bir deneyim (karbon zemin, soğuk camgöbeği → sıcak amber anlatısal renk ekseni, 3D nokta bulutu morph'u, yatay kayan modül galerisi). **Bu iş Gün 3-10 modül planının bir parçası değildi**, üstüne eklendi — dolayısıyla `PLAN.md`'deki modül kutularını etkilemez.
+- **`frontend/src/pages/modules/*.tsx` hâlâ Gün 2'deki gibi tasarımsız kabuk durumda** ("Gün 3 kapsamında eklenecek" placeholder metniyle). Gün 3'te M10/M01/M02 sayfaları buradan gerçek içerikle doldurulacak; ana sayfanın görsel diliyle (karbon/kemik/camgöbeği-amber, Bricolage Grotesque + Instrument Sans + JetBrains Mono) tutarlı olmalı, ama modül sayfalarına 3D sahne/scroll pinleme TAŞINMAYACAK — o yalnızca ana sayfaya özgü.
+- **Kökte ince bir `package.json` eklendi** (`postinstall` → `frontend/`'e devreder, `dev`/`build`/`preview`/`lint` scriptleri de öyle). VS Code'da klasör kökünde `npm install` / `npm run dev` artık çalışıyor; gerçek bağımlılıklar hâlâ yalnızca `frontend/package.json`'da.
+- **WebGL koruması eklendi** (`frontend/src/lib/motion.ts` → `useWebglAvailable`): donanım hızlandırması kapalı tarayıcılarda (ör. bazı Opera GX yapılandırmaları) 3D katman hiç mount edilmiyor, sayfa metin/scroll deneyimi olarak eksiksiz kalıyor. `prefers-reduced-motion` için de aynı desen zaten vardı.
+- Repo GitHub'a push edildi: `github.com/VictoriaShouta/DatAIntel`, `main` dalı güncel.
+- **`graphify-out/`** eklendiyse (bkz. proje köküne bakın) kod/doküman üzerinde sorgulanabilir bir bilgi grafiği var — yeni bir oturumda "X nerede/nasıl çalışıyor" gibi bir soru geldiğinde önce onu sorgulamak, ilgili dosyaları baştan sona okumaktan daha ucuzdur.
+
+### Gün 3 için ilk oturum yönergesi
+
+1. `PLAN.md`'yi oku, "Gün 3" bölümünden başla: M10 (kullanıcı yönetimi) → M01 (veri girişi) → M02 (veri depolama).
+2. Çalışma Protokolü madde 3 geçerli: her modülde sıra **models → schemas → service → (tasks) → router → frontend sayfası → test → PLAN.md işaretle**.
+3. Çalışma Protokolü madde 4 geçerli: **kod yazmadan önce ne yapılacağını 3-5 maddede söyle, onay bekle.**
+4. `backend/modules/m01..m15` klasörleri Gün 2'de iskelet olarak açıldı ama içleri boş; Gün 3 bunları gerçek modüllerle dolduracak ilk gün.
+5. Frontend tarafında modül sayfası şablonu henüz yok — M10/M01/M02 sayfalarını yazarken ortak bir düzen (başlık bloğu, içerik kabı) türetmek isterse bu üç modülden sonra ayrı bir adım olarak ele alınabilir; Gün 3'ü bloklamaz.

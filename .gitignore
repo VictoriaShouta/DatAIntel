@@ -46,3 +46,10 @@ backups/
 
 # Claude Code / harness
 .claude/
+
+# graphify — bilgi grafiği çıktısı (graph.json/GRAPH_REPORT.md/graph.html/manifest.json
+# ve cache/ kasıtlı olarak commit'lenir ki yeni bir oturum aynı repoyu açtığında
+# dosyaları baştan okumak yerine sorgulayabilsin). Bu iki dosya makineye özgü
+# yerel işaretçilerdir, taşınabilir değildir — commit'lenmez.
+graphify-out/.graphify_python
+graphify-out/.graphify_root

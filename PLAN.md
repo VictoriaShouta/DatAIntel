@@ -3,8 +3,8 @@
 > Bu dosya hem plan hem ilerleme takibidir. Her modül bitiminde kutular işaretlenir.
 > Kalıcı kurallar ve mimari için `CLAUDE.md`'ye bakın.
 
-**Durum:** Gün 2 tamamlandı — Gün 3'e hazır
-**Son güncelleme:** 20.07.2026
+**Durum:** Gün 2 tamamlandı — Gün 3'e hazır (M10 + M01 + M02 henüz başlamadı)
+**Son güncelleme:** 21.07.2026 — ayrıca bkz. `CLAUDE.md` → "Gün 3'e Devir" (ana sayfa tasarımı, WebGL koruması, kök npm scriptleri, GitHub push — bunlar Gün 3 modül planının dışında, üstüne eklendi)
 
 ---
 
@@ -40,16 +40,20 @@ Kod yok. Bu gün, İş Paketi 1'in karşılığı ve staj raporunun omurgası.
 - [x] Repo iskeleti (`git init`) + `requirements.txt` + `.env.example` + `.gitignore` + `README.md`
 - [x] `docker-compose.yml`: postgres, redis, redpanda, mlflow, prometheus, grafana, backend, worker, beat, frontend, mock_erp, stream_producer — **12 servis de gerçekten ayakta ve doğrulandı** (bkz. aşağıdaki madde)
 - [x] FastAPI iskeleti + `/health` + `/metrics` + `core/config.py` + `core/db.py` + `core/security.py` + `core/logging.py` + Alembic init — geçici venv'de gerçek import + TestClient ile doğrulandı
-- [x] Frontend iskeleti (Vite 8 + React 19 + Tailwind v4 + React Router + TanStack Query + Recharts v3); M01–M15 için boş sayfa kabukları + Layout/nav. **Tasarımsız bırakıldı** — hero/animasyon Claude Design çıktısı geldikten sonra eklenecek (bkz. Not aşağıda). `npm run build` ve tarayıcıda routing doğrulandı.
+- [x] Frontend iskeleti (Vite 8 + React 19 + Tailwind v4 + React Router + TanStack Query + Recharts v3); M01–M15 için boş sayfa kabukları + Layout/nav. `npm run build` ve tarayıcıda routing doğrulandı. (Ana sayfa/header sonradan, Gün 3 dışında ayrı bir turda tasarlandı — bkz. not aşağıda; M01-M15 modül sayfaları hâlâ bu günkü tasarımsız kabuk haliyle duruyor, Gün 3'te dolduruluyor.)
 - [x] **`scripts/generate_data.py`** — 2 yıllık (730 gün) satış/stok/finans/müşteri verisi; trend + haftalık/yıllık mevsimsellik + gürültü; ~%5 kasıtlı kirli kayıt (eksik değer, aykırı değer, tip hatası, duplikasyon) — çalıştırıldı ve dört kirli kayıt tipi de doğrulandı (`data/synthetic/`, gitignore'da — script ile yeniden üretilebilir)
 - [x] `docker compose up` ile her şey ayağa kalkıyor ✔ — Docker kurulduktan sonra doğrulandı: `backend` `/health`+`/docs`, `mock_erp` `/health`, `mlflow`, `prometheus`, `grafana`, `frontend` 200 döndü; `worker`/`beat` Redis'e bağlandı; `postgres`/`redis` healthy. İki port çakışması (postgres/mlflow) ve iki VM-seviyesi bind-mount kilitlenmesi (postgres/prometheus) çözüldü — detay `docs/ARCHITECTURE.md` § Açık Notlar.
 
 **Çıktı:** Repo iskeleti, docker-compose.yml (12 servis çalışır durumda doğrulandı), backend/frontend kabukları, sentetik veri üreteci.
 
-> **Not (frontend iş bölümü):** Kullanıcı frontend'e başlamadan önce ana sayfa/hero'yu
-> Claude Design ile tasarlayacak; ardından yüklü frontend skilleriyle animasyonlu
-> header uygulanacak. Bu adıma gelindiğinde Claude Code durup kullanıcıdan
-> tasarım girdisini bekleyecek — kod öncesi onaysız ilerlemeyecek.
+> **Not (frontend iş bölümü — güncel):** Kullanıcı önce ana sayfa/header'ı Claude
+> Design ile denedi, çıktıyı beğenmedi ve tasarım kararını doğrudan Claude Code'a
+> bıraktı. Ana sayfa (`HomePage.tsx`, `Layout.tsx`) landonorris.com referanslı,
+> GSAP + Lenis + React Three Fiber ile scroll tabanlı bir deneyim olarak
+> tamamlandı — bu iş **Gün 3-10 modül planının parçası değildi**, plan dışı ayrı
+> bir talepti. M01-M15 modül sayfaları (`frontend/src/pages/modules/`) bundan
+> etkilenmedi, hâlâ tasarımsız kabuk halinde ve Gün 3'ün gerçek işi bunları
+> doldurmak. Detay: `CLAUDE.md` → "Gün 3'e Devir".
 
 ---
 
