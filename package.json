@@ -1,0 +1,13 @@
+{
+  "name": "datAIntel",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Kök kolaylık paketi — gerçek uygulama frontend/ içinde yaşar. Bu dosya yalnızca VS Code'da klasör kökünden `npm install` / `npm run dev` çalıştırılabilsin diye vardır; kendi bağımlılığı yoktur.",
+  "scripts": {
+    "postinstall": "npm install --prefix frontend",
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "preview": "npm run preview --prefix frontend",
+    "lint": "npm run lint --prefix frontend"
+  }
+}

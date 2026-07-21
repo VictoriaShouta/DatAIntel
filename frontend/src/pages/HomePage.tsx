@@ -1,7 +1,7 @@
 import { Suspense, lazy, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MODULES, PHASE_LABELS } from '../lib/modules'
-import { ScrollTrigger, gsap, usePrefersReducedMotion, useGSAP } from '../lib/motion'
+import { ScrollTrigger, gsap, usePrefersReducedMotion, useGSAP, useWebglAvailable } from '../lib/motion'
 
 // three ~600KB. Ana paketten çıkarılır; hero metni beklemeden görünür.
 const DataCloud = lazy(() => import('../components/three/DataCloud'))
@@ -54,6 +54,11 @@ const STACK = [
 
 export function HomePage() {
   const reduced = usePrefersReducedMotion()
+  // WebGL kapalı/kullanılamaz olduğunda (ör. donanım hızlandırması kapatılmış
+  // tarayıcılar) 3D katman hiç kurulmaz; boru hattı metni ve scroll animasyonu
+  // bundan etkilenmeden çalışmaya devam eder.
+  const webglAvailable = useWebglAvailable()
+  const showCloud = !reduced && webglAvailable
 
   // Nokta bulutunun ilerlemesi (0..3). Bilinçli olarak state DEĞİL:
   // her scroll karesinde React render'ı tetiklemek 24 bin parçacıkta
@@ -117,16 +122,21 @@ export function HomePage() {
 
       // Bulut yalnızca hero + boru hattı boyunca görünür; modül galerisi
       // başlarken sahneden çekilir ki kartların arkasında gürültü yapmasın.
-      gsap.to(canvasWrapRef.current, {
-        opacity: 0,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: pipelineRef.current,
-          start: 'bottom bottom-=25%',
-          end: 'bottom top+=25%',
-          scrub: true,
-        },
-      })
+      // WebGL yoksa katman hiç render edilmez (canvasWrapRef.current null
+      // kalır) — gsap.to(null, …) gereksiz bir "target not found" uyarısı
+      // basar, o yüzden burada atlıyoruz.
+      if (canvasWrapRef.current) {
+        gsap.to(canvasWrapRef.current, {
+          opacity: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: pipelineRef.current,
+            start: 'bottom bottom-=25%',
+            end: 'bottom top+=25%',
+            scrub: true,
+          },
+        })
+      }
 
       // --- Modül galerisi: dikey scroll yatay harekete çevrilir ---------
       const track = trackRef.current
@@ -161,13 +171,13 @@ export function HomePage() {
       // Fontlar geç yüklenirse yükseklikler kayar; ölçümleri tazele.
       document.fonts?.ready.then(() => ScrollTrigger.refresh())
     },
-    { scope: rootRef, dependencies: [reduced] },
+    { scope: rootRef, dependencies: [reduced, webglAvailable] },
   )
 
   return (
     <div ref={rootRef} className="relative">
       {/* Sabit 3D katman — içeriğin arkasında, tıklamaları engellemez */}
-      {!reduced && (
+      {showCloud && (
         <div
           ref={canvasWrapRef}
           className="pointer-events-none fixed inset-0 z-0"

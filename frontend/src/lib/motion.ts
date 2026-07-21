@@ -43,3 +43,36 @@ export function usePrefersReducedMotion(): boolean {
 
   return reduced
 }
+
+/**
+ * WebGL gerçekten kullanılabilir mi?
+ *
+ * `'webgl' in window` gibi bir kontrol yetmez: bazı tarayıcılarda (ör. Opera
+ * GX'te donanım hızlandırma kapatıldığında) WebGL API'si mevcuttur ama
+ * `getContext` sessizce `null` döner ya da three.js'in WebGLRenderer'ı context
+ * kurulumunda atar. R3F <Canvas> bu durumu kendi başına yakalamaz — mount
+ * olur, ardından WebGLRenderer içeride hata fırlatır ve yakalanmamış promise
+ * reddi olarak konsola düşer.
+ *
+ * Bunun yerine, <Canvas>'ı hiç mount ETMEDEN önce atılabilir bir tuval
+ * üzerinde context kurulumunu deniyoruz. Başarısızsa 3D katman tamamen
+ * atlanır — sayfa metin/scroll deneyimi olarak eksiksiz kalır, tıpkı
+ * `usePrefersReducedMotion` true döndüğünde olduğu gibi.
+ */
+export function useWebglAvailable(): boolean {
+  const [available] = useState(() => {
+    if (typeof window === 'undefined') return false
+    try {
+      const canvas = document.createElement('canvas')
+      const context =
+        canvas.getContext('webgl2') ||
+        canvas.getContext('webgl') ||
+        canvas.getContext('experimental-webgl')
+      return context !== null
+    } catch {
+      return false
+    }
+  })
+
+  return available
+}
