@@ -20,21 +20,46 @@
 > Gün 3'ün M10/M01/M02 hedefinin bir parçası değil, üstüne eklendi; modül
 > kutularını etkilemiyor.
 
-> **Plan dışı not (21.07.2026, devamı):** alche.studio referans alınarak site
-> geneline özel imleç eklendi (`components/Cursor.tsx` — nokta + gecikmeli
-> halka, `[data-cursor-hover]` işaretli öğelerde büyüyüp sıcak renge dönüyor;
-> dokunmatik/hareket azaltmada hiç kurulmuyor). "On beş durak, tek hat"
-> galerisindeki her karta modül koduna göre sabit üretilen soyut bir kapak
-> eklendi (`components/ModuleCover.tsx` — marka işaretindeki yükselen nokta
-> motifinin varyasyonu; gerçek ekran görüntüsü yerine, henüz modül sayfaları
-> dolmadığı için). Kart üzerine gelindiğinde imleci izleyen, hafif 3B eğilen
-> bir önizleme paneli beliriyor (`components/GalleryPreview.tsx`). Var olan
-> yatay-kaydırmalı galeri iskeleti korundu, üzerine eklendi — yeniden
-> yazılmadı. Not: bu üç bileşenin canlı imleç-takip/eğim/nefes animasyonları
-> önizleme tarayıcısında piksel olarak doğrulanamadı (sekme `document.hidden`
-> olduğu için `requestAnimationFrame` durmuş durumda — GSAP ticker'ı
-> etkileyen bir sandbox kısıtı, kodun kendisiyle ilgisi yok); `npm run dev`
-> ile gerçek tarayıcıda görsel olarak kontrol edilmeli.
+> **Plan dışı not (21.07.2026, devamı):** Kartlara modül koduna göre sabit
+> üretilen soyut kapaklar eklendi (`components/ModuleCover.tsx` — marka
+> işaretindeki yükselen nokta motifinin varyasyonu; modül sayfaları henüz
+> dolmadığı için gerçek ekran görüntüsü yerine).
+>
+> İlk denemede eklenen özel imleç (nokta + halka) ve imleç-takipli önizleme
+> paneli **geri alındı** — alche.studio'nun kaynak paketi incelendiğinde o
+> sitede özel imleç grafiği olmadığı, yalnızca yerel imlecin kullanıldığı
+> (`document.body.style.cursor="pointer"`) görüldü. Oradaki "imleç hissi"
+> aslında arkadaki akışkan simülasyonunun imlece tepki vermesinden geliyor.
+>
+> Yerine iki gerçek sistem kuruldu:
+> - **`components/FluidBackground.tsx`** — ham WebGL2 üzerinde GPU akışkan
+>   (Stable Fluids) çözücüsü: splat → curl → vorticity → divergence →
+>   basınç (Jacobi ×12) → gradyan çıkarma → advection. İmleç hıza kuvvet
+>   enjekte eder. Renk, projenin soğuk→sıcak anlatı eksenine bağlı (sayfada
+>   aşağı inildikçe camgöbeğinden ambere döner). three.js kullanmaz, ayrı
+>   lazy chunk (~3.6 KB gzip).
+> - **`components/OrbitGallery.tsx`** — kartlar 3B bir elips yörüngede döner
+>   (`sin` yatay, `cos` derinlik, dikeyde sabit kayma → çapraz yay). Odaktaki
+>   kart büyür ve öne gelir, uzaktakiler arkaya dönerek söner. alche'nin
+>   `WorksThumbnails` sınıfındaki formülün birebir karşılığı, ama WebGL yerine
+>   gerçek DOM üzerinde — bağlantılar `<a>` olarak kalır, metin seçilebilir.
+>   Yatay-kaydırmalı eski galeri bunun yerine kaldırıldı.
+>
+> **Doğrulama durumu:** Çözücünün çalıştığı sayısal olarak kanıtlandı
+> (`gl.readPixels`: splat sonrası boya enjekte edilen rengi alıyor, 8 adım
+> sonra sönümleniyor ve enjekte edilen hız yönünde taşınıyor); framebuffer'lar
+> `COMPLETE`, GL hatası yok. Yörünge geometrisi de ölçüldü (odak kartı en
+> büyük/en önde, komşular perspektifle daralıyor, hepsi görüş alanı içinde).
+> **Ancak hiçbiri piksel olarak görülemedi** — önizleme sekmesi
+> `visibilityState: hidden` olduğu için derleyici boyama yapmıyor ve
+> `requestAnimationFrame` donuyor; ekran görüntüleri siyah geliyor. Akışkanın
+> ve yörüngenin görsel ayarı (hız, yoğunluk, yarıçap) gerçek tarayıcıda
+> `npm run dev` ile gözden geçirilmeli.
+>
+> Kurulum sırasında gerçek bir hata bulundu ve düzeltildi: tuval ilk yerleşimde
+> 0 boyutlu olduğunda `1/en-boy` = `Infinity` oluyor, bütün framebuffer'lar
+> "incomplete" doğuyor ve hiçbir çizim çalışmıyordu (GL 1286). Ölçü artık
+> pencereden türetilip sonlu/pozitif olduğu garanti ediliyor.
 
 ---
 

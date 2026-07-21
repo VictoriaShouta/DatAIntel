@@ -1,12 +1,12 @@
 import { Suspense, lazy, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MODULES, PHASE_LABELS, type ModuleEntry } from '../lib/modules'
 import { ScrollTrigger, gsap, usePrefersReducedMotion, useGSAP, useWebglAvailable } from '../lib/motion'
-import { ModuleCover } from '../components/ModuleCover'
-import { GalleryPreview } from '../components/GalleryPreview'
+import { OrbitGallery } from '../components/OrbitGallery'
 
 // three ~600KB. Ana paketten çıkarılır; hero metni beklemeden görünür.
 const DataCloud = lazy(() => import('../components/three/DataCloud'))
+// Akışkan zemin de ana paketten ayrılır; WebGL yoksa hiç indirilmez.
+const FluidBackground = lazy(() => import('../components/FluidBackground'))
 
 /**
  * Boru hattının dört durağı. Sıra, nokta bulutunun morph sırasıyla birebir
@@ -72,12 +72,9 @@ export function HomePage() {
   const heroWrapRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const pipelineRef = useRef<HTMLDivElement>(null)
-  const galleryRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
 
   const [activeStage, setActiveStage] = useState(0)
   const activeStageRef = useRef(0)
-  const [previewModule, setPreviewModule] = useState<ModuleEntry | null>(null)
 
   useGSAP(
     () => {
@@ -168,24 +165,6 @@ export function HomePage() {
         })
       }
 
-      // --- Modül galerisi: dikey scroll yatay harekete çevrilir ---------
-      const track = trackRef.current
-      if (track) {
-        gsap.to(track, {
-          // Fonksiyon olarak veriliyor ki pencere yeniden boyutlandığında
-          // invalidateOnRefresh ile doğru mesafe yeniden hesaplansın.
-          x: () => -(track.scrollWidth - window.innerWidth + 64),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: galleryRef.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 0.6,
-            invalidateOnRefresh: true,
-          },
-        })
-      }
-
       // --- Genel bölüm açılışları --------------------------------------
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
         gsap.from(element.children, {
@@ -206,6 +185,14 @@ export function HomePage() {
 
   return (
     <div ref={rootRef} className="relative">
+      {/* Akışkan zemin — imleç kuvvet uygular, girdaplar arkada dağılır.
+          En altta durur; nokta bulutu ve içerik bunun üzerine biner. */}
+      {showCloud && (
+        <Suspense fallback={null}>
+          <FluidBackground />
+        </Suspense>
+      )}
+
       {/* Sabit 3D katman — içeriğin arkasında, tıklamaları engellemez */}
       {showCloud && (
         <div
@@ -259,14 +246,12 @@ export function HomePage() {
             <div data-hero-fade className="flex flex-wrap items-center gap-3">
               <Link
                 to="/m13-performans"
-                data-cursor-hover
                 className="rounded-xl bg-bone px-6 py-3.5 text-[15px] font-semibold text-carbon transition-colors duration-200 hover:bg-warm"
               >
                 Canlı panele git
               </Link>
               <a
                 href="#mimari"
-                data-cursor-hover
                 className="rounded-xl border border-[var(--edge-strong)] px-6 py-3.5 text-[15px] font-medium text-bone transition-colors duration-200 hover:border-warm/60 hover:text-warm"
               >
                 Mimariye bak
@@ -394,98 +379,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ================= MODÜL GALERİSİ (yatay) ================= */}
-      {/* Hareket azaltma açıkken yatay sürükleme kurulmaz; şerit yerinde
-          kalacağı için 15 kartın 12'sine ulaşılamazdı. O durumda bölüm normal
-          yüksekliğe döner ve kartlar sarmalı bir ızgara olarak dizilir. */}
-      <section
-        id="hat"
-        ref={galleryRef}
-        className="relative z-10 bg-carbon"
-        style={reduced ? undefined : { height: `${MODULES.length * 42}vh` }}
-      >
-        <div
-          className={
-            reduced
-              ? 'py-28'
-              : 'sticky top-0 flex h-dvh flex-col justify-center overflow-hidden'
-          }
-        >
-          <div className="mx-auto mb-10 flex w-full max-w-[1400px] items-end justify-between px-6 sm:px-10 lg:px-16">
-            <h2 className="font-display text-[clamp(1.9rem,4vw,3rem)] font-extrabold">
-              On beş durak, tek hat
-            </h2>
-            <span className="font-mono text-xs text-bone-faint tabular">Uçtan uca</span>
-          </div>
-
-          {/* Dikey scroll bu şeridi yatayda sürer */}
-          <div
-            ref={trackRef}
-            className={
-              reduced
-                ? 'mx-auto grid w-full max-w-[1400px] gap-5 px-6 sm:grid-cols-2 sm:px-10 lg:grid-cols-3 lg:px-16'
-                : 'flex gap-5 pr-16 pl-6 sm:pl-10 lg:pl-16'
-            }
-          >
-            {MODULES.map((module) => (
-              <Link
-                key={module.to}
-                to={module.to}
-                data-cursor-hover
-                onMouseEnter={() => setPreviewModule(module)}
-                onMouseLeave={() =>
-                  setPreviewModule((current) => (current === module ? null : current))
-                }
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--edge)] bg-carbon-raised p-6 transition-colors duration-300 hover:border-warm/45 ${
-                  reduced
-                    ? 'min-h-[15rem] gap-8'
-                    : 'h-[clamp(17rem,42vh,24rem)] w-[clamp(15rem,26vw,20rem)] shrink-0'
-                }`}
-              >
-                {/* Modüle özgü üretilmiş kapak — arka planda, koyu degradeyle metnin
-                    üzerine biner ama okunurluğu bozmaz. */}
-                <ModuleCover
-                  module={module}
-                  className="absolute inset-0 h-full w-full opacity-60 transition-opacity duration-500 group-hover:opacity-35"
-                />
-                <span
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-carbon-raised via-carbon-raised/75 to-carbon-raised/20"
-                  aria-hidden="true"
-                />
-
-                {/* Hover'da alttan yükselen sıcak ışıma */}
-                <span
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-40 translate-y-8 bg-gradient-to-t from-warm/15 to-transparent opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
-                  style={{ transitionTimingFunction: 'var(--ease-soft)' }}
-                  aria-hidden="true"
-                />
-
-                <div className="relative flex items-start justify-between">
-                  <span className="eyebrow">{PHASE_LABELS[module.phase]}</span>
-                </div>
-
-                <div className="relative">
-                  <h3 className="font-display text-2xl font-extrabold transition-transform duration-300 group-hover:-translate-y-0.5">
-                    {module.name}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-bone-faint">{module.summary}</p>
-                  <span className="mt-5 flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] text-bone-faint uppercase transition-colors duration-300 group-hover:text-warm">
-                    İncele
-                    <span
-                      className="transition-transform duration-300 group-hover:translate-x-1"
-                      aria-hidden="true"
-                    >
-                      →
-                    </span>
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <GalleryPreview active={previewModule} />
+      <OrbitGallery />
 
       {/* ================= MİMARİ ================= */}
       <section id="mimari" className="relative z-10 bg-carbon px-6 py-32 sm:px-10 lg:px-16">
@@ -536,14 +430,12 @@ export function HomePage() {
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
               to="/m13-performans"
-              data-cursor-hover
               className="rounded-xl bg-warm px-7 py-3.5 text-[15px] font-semibold text-carbon transition-colors duration-200 hover:bg-bone"
             >
               Panele git
             </Link>
             <Link
               to="/m01-veri-girisi"
-              data-cursor-hover
               className="rounded-xl border border-[var(--edge-strong)] px-7 py-3.5 text-[15px] font-medium text-bone transition-colors duration-200 hover:border-warm/60 hover:text-warm"
             >
               Veri yüklemeyle başla

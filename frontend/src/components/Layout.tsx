@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { MODULES, PHASE_LABELS, PRIMARY_NAV, type ModulePhase } from '../lib/modules'
 import { SmoothScroll } from './SmoothScroll'
-import { Cursor } from './Cursor'
 
 const PHASE_ORDER: ModulePhase[] = ['toplama', 'cozumleme', 'karar', 'isletme']
 
@@ -89,7 +88,6 @@ function ModuleIndex({ open, onClose }: { open: boolean; onClose: () => void }) 
                     <Link
                       to={module.to}
                       onClick={onClose}
-                      data-cursor-hover
                       className="group flex items-baseline gap-4 border-b border-transparent py-3 hover:border-[var(--edge)]"
                       style={{
                         opacity: open ? 1 : 0,
@@ -148,7 +146,6 @@ export function Layout() {
 
   return (
     <SmoothScroll>
-      <Cursor />
       <div className="min-h-dvh bg-carbon">
         <header
           className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
@@ -180,7 +177,6 @@ export function Layout() {
                 <a
                   key={item.href}
                   href={item.href}
-                  data-cursor-hover
                   className="rounded px-3 py-2 text-sm font-medium text-bone-dim transition-colors duration-200 hover:text-bone"
                 >
                   {item.label}
@@ -191,7 +187,6 @@ export function Layout() {
             <div className="ml-auto flex items-center gap-2 sm:gap-3">
               <NavLink
                 to="/login"
-                data-cursor-hover
                 className="hidden rounded px-3 py-2 text-sm font-medium text-bone-dim transition-colors duration-200 hover:text-bone sm:block"
               >
                 Giriş yap
@@ -202,7 +197,6 @@ export function Layout() {
                 onClick={() => setMenuOpen((value) => !value)}
                 aria-expanded={menuOpen}
                 aria-controls="site-dizini"
-                data-cursor-hover
                 className="flex items-center gap-2.5 rounded-lg border border-[var(--edge-strong)] px-3.5 py-2 text-sm font-medium text-bone transition-colors duration-200 hover:border-warm/50 hover:text-warm"
               >
                 <span className="hidden sm:inline">{menuOpen ? 'Kapat' : 'Tümü'}</span>
@@ -230,7 +224,6 @@ export function Layout() {
 
               <Link
                 to="/m13-performans"
-                data-cursor-hover
                 className="rounded-lg bg-bone px-4 py-2 text-sm font-semibold text-carbon transition-colors duration-200 hover:bg-warm"
               >
                 Panele git

@@ -122,56 +122,6 @@
     mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 30%, transparent 78%);
   }
 
-  /* Özel imleç: küçük nokta + gecikmeli halka. Konumu GSAP quickTo ile
-     sürülür (bkz. Cursor.tsx); burada yalnızca boyut/renk geçişleri var. */
-  .cursor-dot,
-  .cursor-ring {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    pointer-events: none;
-    border-radius: 9999px;
-    will-change: transform;
-  }
-
-  .cursor-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--color-bone);
-  }
-
-  .cursor-ring {
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--edge-strong);
-    transition:
-      width 0.3s var(--ease-soft),
-      height 0.3s var(--ease-soft),
-      border-color 0.3s var(--ease-soft),
-      background-color 0.3s var(--ease-soft);
-  }
-
-  .cursor-ring--active {
-    width: 64px;
-    height: 64px;
-    border-color: var(--color-warm);
-    background: rgb(255 163 26 / 0.08);
-  }
-
-  /* Özel imleç açıkken sistem imleci gizlenir; dokunmatikte hiç kurulmuyor
-     zaten (bkz. usePointerFine), ama kural burada da güvence altına alınır. */
-  .cursor-active {
-    cursor: none;
-  }
-
-  @media (pointer: coarse) {
-    .cursor-dot,
-    .cursor-ring {
-      display: none;
-    }
-  }
-
   /* Film grenini taklit eden dokunuşsuz doku katmanı */
   .grain::after {
     content: "";
