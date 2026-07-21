@@ -59,6 +59,23 @@ export function usePrefersReducedMotion(): boolean {
  * atlanır — sayfa metin/scroll deneyimi olarak eksiksiz kalır, tıpkı
  * `usePrefersReducedMotion` true döndüğünde olduğu gibi.
  */
+/**
+ * Cihazın birincil işaretçisi "fine" mi (fare/trackpad)?
+ *
+ * Özel imleç ve imleç-takipli önizleme panelleri yalnızca gerçek bir imleci
+ * olan cihazlarda anlamlıdır — dokunmatikte hem gereksiz hem de "hayalet
+ * imleç" görüntüsüne yol açar. Bir kez okunur; `useWebglAvailable` ile aynı
+ * desen (donanım özelliği çalışma zamanında değişmez, dinlemeye gerek yok).
+ */
+export function usePointerFine(): boolean {
+  const [fine] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(pointer: fine)').matches
+  })
+
+  return fine
+}
+
 export function useWebglAvailable(): boolean {
   const [available] = useState(() => {
     if (typeof window === 'undefined') return false

@@ -20,6 +20,22 @@
 > Gün 3'ün M10/M01/M02 hedefinin bir parçası değil, üstüne eklendi; modül
 > kutularını etkilemiyor.
 
+> **Plan dışı not (21.07.2026, devamı):** alche.studio referans alınarak site
+> geneline özel imleç eklendi (`components/Cursor.tsx` — nokta + gecikmeli
+> halka, `[data-cursor-hover]` işaretli öğelerde büyüyüp sıcak renge dönüyor;
+> dokunmatik/hareket azaltmada hiç kurulmuyor). "On beş durak, tek hat"
+> galerisindeki her karta modül koduna göre sabit üretilen soyut bir kapak
+> eklendi (`components/ModuleCover.tsx` — marka işaretindeki yükselen nokta
+> motifinin varyasyonu; gerçek ekran görüntüsü yerine, henüz modül sayfaları
+> dolmadığı için). Kart üzerine gelindiğinde imleci izleyen, hafif 3B eğilen
+> bir önizleme paneli beliriyor (`components/GalleryPreview.tsx`). Var olan
+> yatay-kaydırmalı galeri iskeleti korundu, üzerine eklendi — yeniden
+> yazılmadı. Not: bu üç bileşenin canlı imleç-takip/eğim/nefes animasyonları
+> önizleme tarayıcısında piksel olarak doğrulanamadı (sekme `document.hidden`
+> olduğu için `requestAnimationFrame` durmuş durumda — GSAP ticker'ı
+> etkileyen bir sandbox kısıtı, kodun kendisiyle ilgisi yok); `npm run dev`
+> ile gerçek tarayıcıda görsel olarak kontrol edilmeli.
+
 ---
 
 ## HAFTA 1
